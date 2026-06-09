@@ -5,81 +5,92 @@ import nltk
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 
-# Ensure NLTK data is available (for deployment, you might pre-download these)
+# Download required NLTK data
 nltk.download('stopwords', quiet=True)
 nltk.download('wordnet', quiet=True)
 
-# Load the pre-trained model and vectorizer
+# Load model files
 try:
     model = joblib.load('linear_svc_tfidf_model.pkl')
     vectorizer = joblib.load('tfidf_vectorizer.pkl')
     label_encoder = joblib.load('label_encoder.pkl')
-    st.success("Model and components loaded successfully!")
+
 except FileNotFoundError:
-    st.error("Error: Model or vectorizer files not found. Please ensure 'linear_svc_tfidf_model.pkl', 'tfidf_vectorizer.pkl', and 'label_encoder.pkl' are in the same directory.")
+    st.error(
+        "Error: Model or vectorizer files not found. "
+        "Please ensure all .pkl files are in the same directory."
+    )
     st.stop()
 
-# Initialize lemmatizer and stopwords for preprocessing
+# Initialize preprocessing tools
 lemmatizer = WordNetLemmatizer()
 stop_words = set(stopwords.words('english'))
 
+# Text preprocessing function
 def preprocess_text(text):
-    # 1. Remove HTML tags
+    # Remove HTML tags
     text = re.sub(r'<.*?>', '', text)
-    # 2. Remove special characters and numbers, keep only letters
+
+    # Remove special characters and numbers
     text = re.sub(r'[^a-zA-Z]', ' ', text)
-    # 3. Convert to lowercase
+
+    # Convert to lowercase
     text = text.lower()
-    # 4. Tokenization
+
+    # Tokenization
     tokens = text.split()
-    # 5. Remove stopwords and 6. Lemmatization
-    tokens = [lemmatizer.lemmatize(word) for word in tokens if word not in stop_words]
+
+    # Remove stopwords and lemmatize
+    tokens = [
+        lemmatizer.lemmatize(word)
+        for word in tokens
+        if word not in stop_words
+    ]
+
     return ' '.join(tokens)
 
-st.title("IMDB Movie Review Sentiment Analysis")
-st.write("Enter a movie review below to get its sentiment (positive/negative).")
 
-user_input = st.text_area("Enter your movie review here:", "This movie was absolutely fantastic! I loved every minute of it.")
+# Streamlit UI
+st.title("🎬 IMDB Movie Review Sentiment Analysis")
+st.write(
+    "Enter a movie review below to predict "
+    "whether it is positive or negative."
+)
 
-if st.button("Analyze Sentiment"):
-    if user_input:
-        # Preprocess the input text
-        cleaned_input = preprocess_text(user_input)
-        
-        # Vectorize the cleaned text
-        input_vectorized = vectorizer.transform([cleaned_input])
-        
-        # Make prediction
-        prediction_encoded = model.predict(input_vectorized)
-        
-        # Decode the prediction
-    
-        prediction_encoded = model.predict(input_vectorized)
+user_input = st.text_area(
+    "Enter your movie review here:",
+    "This movie was absolutely fantastic! I loved every minute of it."
+)
 
-st.write("Encoded Prediction:", prediction_encoded)
+# Predict sentiment
+if st.button("Analyze Sentiment", key="analyze_btn"):
 
-prediction_sentiment = label_encoder.inverse_transform(prediction_encoded)[0]
-
-st.write("Decoded Prediction:", prediction_sentiment)
-        
-if st.button("Analyze Sentiment"):
     if user_input.strip():
 
-        # Vectorize input
-        input_vectorized = vectorizer.transform([user_input])
+        # Preprocess input
+        cleaned_input = preprocess_text(user_input)
 
-        # Make prediction
+        # Convert text to vector
+        input_vectorized = vectorizer.transform([cleaned_input])
+
+        # Predict
         prediction_encoded = model.predict(input_vectorized)
 
         # Decode prediction
-        prediction_sentiment = label_encoder.inverse_transform(prediction_encoded)[0]
+        prediction_sentiment = label_encoder.inverse_transform(
+            prediction_encoded
+        )[0]
 
         st.subheader("Analysis Result:")
 
         if prediction_sentiment.lower() == "positive":
-            st.success(f"Sentiment: {prediction_sentiment.upper()} 😊")
+            st.success(
+                f"Sentiment: {prediction_sentiment.upper()} 😊"
+            )
         else:
-            st.error(f"Sentiment: {prediction_sentiment.upper()} 😠")
+            st.error(
+                f"Sentiment: {prediction_sentiment.upper()} 😠"
+            )
 
     else:
         st.warning("Please enter some text to analyze.")
