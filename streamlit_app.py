@@ -63,7 +63,7 @@ prediction_sentiment = label_encoder.inverse_transform(prediction_encoded)[0]
 st.write("Decoded Prediction:", prediction_sentiment)
         
 if st.button("Analyze Sentiment"):
-    if user_input:
+    if user_input.strip():
 
         # Vectorize input
         input_vectorized = vectorizer.transform([user_input])
@@ -76,10 +76,10 @@ if st.button("Analyze Sentiment"):
 
         st.subheader("Analysis Result:")
 
-        if prediction_sentiment == 'positive':
-            st.success(f"Sentiment: **{prediction_sentiment.upper()}** 😊")
+        if prediction_sentiment.lower() == "positive":
+            st.success(f"Sentiment: {prediction_sentiment.upper()} 😊")
         else:
-            st.error(f"Sentiment: **{prediction_sentiment.upper()}** 😠")
+            st.error(f"Sentiment: {prediction_sentiment.upper()} 😠")
 
     else:
         st.warning("Please enter some text to analyze.")
