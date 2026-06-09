@@ -53,7 +53,14 @@ if st.button("Analyze Sentiment"):
         prediction_encoded = model.predict(input_vectorized)
         
         # Decode the prediction
-        prediction_sentiment = label_encoder.inverse_transform(prediction_encoded)[0]
+    
+        prediction_encoded = model.predict(input_vectorized)
+
+st.write("Encoded Prediction:", prediction_encoded)
+
+prediction_sentiment = label_encoder.inverse_transform(prediction_encoded)[0]
+
+st.write("Decoded Prediction:", prediction_sentiment)
         
         st.subheader("Analysis Result:")
         if prediction_sentiment == 'positive':
