@@ -64,7 +64,8 @@ st.write("Decoded Prediction:", prediction_sentiment)
         
 if st.button("Analyze Sentiment"):
     if user_input:
-        # Vectorize input directly
+
+        # Vectorize input
         input_vectorized = vectorizer.transform([user_input])
 
         # Make prediction
@@ -80,11 +81,5 @@ if st.button("Analyze Sentiment"):
         else:
             st.error(f"Sentiment: **{prediction_sentiment.upper()}** 😠")
 
-    else:
-        st.warning("Please enter some text to analyze.")
-        if prediction_sentiment == 'positive':
-            st.success(f"Sentiment: **{prediction_sentiment.upper()}** 😊")
-        else:
-            st.error(f"Sentiment: **{prediction_sentiment.upper()}** 😠")
     else:
         st.warning("Please enter some text to analyze.")
